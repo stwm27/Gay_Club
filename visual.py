@@ -117,13 +117,12 @@ def draw_pieces():
                 
 
 
+
 def check(pieces, locations, turn):
-    """Проверить могут ли фигуры ходить"""
-    moves_list = []
     all_moves_list = []
     for i in range(len(pieces)):
         location = locations[i]
-        piece = pieces[1]
+        piece = pieces[i]
         if piece == "pawn":
             moves_list = Pawn(location, turn)
         elif piece == "rook":
@@ -136,8 +135,7 @@ def check(pieces, locations, turn):
             moves_list = Queen(location, turn)
         elif piece == "king":
             moves_list = King(location, turn)
-
-        all_moves_list.append (moves_list)
+        all_moves_list.append(moves_list)
     return all_moves_list
 
 def Pawn(position, color):
@@ -171,97 +169,91 @@ def Pawn(position, color):
 def Rook(position, color):
     """Проверка ладьи"""
     moves_list = []
-    for i in range(4): # Вниз, вверх, влево, вправо
+    friends_list = []  # Define friends_list as needed
+    enemies_list = []
+
+    for i in range(4):  # Вниз, вверх, влево, вправо
         path = True
         chain = 1
         if i == 0:
-            x,y = 0,1
+            x, y = 0, 1
         elif i == 1:
-            x,y = 0, -1
+            x, y = 0, -1
         elif i == 2:
-            x,y = 1, 0
+            x, y = 1, 0
         else:
-            x,y = -1,0
-    
-    if color == "white":
-        enemies_list = black_locations
-        fiends_list = white_locations
+            x, y = -1, 0
 
-    if color == "black":
-        enemies_list = white_locations
-        friends_list = black_locations
-    
-    while path:
-        if (position[0] + (chain*x), position[1] + (chain*y)) not in friends_list and \
-            0 <= position[0] + (chain*x) <= 7 and 0 <= position[1] + (chain*y) <= 7:
-            moves_list.append((position[0] + (chain*x) ), (position[1] + (chain*y)))  
-            if (position[0] + (chain*x), position[1] + (chain*y) ) in enemies_list:
+        while path:
+            if (
+                (position[0] + (chain * x), position[1] + (chain * y))
+                not in friends_list
+                and 0 <= position[0] + (chain * x) <= 7
+                and 0 <= position[1] + (chain * y) <= 7
+            ):
+                moves_list.append(
+                    (position[0] + (chain * x), position[1] + (chain * y))
+                )
+                if (
+                    (position[0] + (chain * x), position[1] + (chain * y)) in enemies_list
+                ):
+                    path = False
+                chain += 1
+            else:
                 path = False
-            chain +=1 
-        else:
-            path = False
     return moves_list
 
 
 def kNight(position, color):
-    """Проверка коня"""
     moves_list = []
-    if color == "white":
-        enemies_list = black_locations
-        friends_list = white_locations
-    if color == "black":
+    if color == 'white':
         enemies_list = white_locations
         friends_list = black_locations
-
-    values = [(-1, 2), (-1, -2), (-2, 1), (-2, -1), (1, 2), (1, -2), (2, 1), (2, -1)]
+    else:
+        friends_list = white_locations
+        enemies_list = black_locations
+    # 8 squares to check for knights, they can go two squares in one direction and one in another
+    targets = [ (-1, 2), (-1, -2), (-2, 1), (-2, -1), (1, 2), (1, -2), (2, 1), (2, -1)]
     for i in range(8):
-        value = (position[1] + values[i][1], position[0] + values[i][0])
-        if value not in friends_list and 0 <= values[0] <= 7 and 0 <= values[1] <= 7:
-            moves_list.append(value)
+        target = (position[0] + targets[i][0], position[1] + targets[i][1])
+        if target not in friends_list and 0 <= target[0] <= 7 and 0 <= target[1] <= 7:
+            moves_list.append(target)
     return moves_list
 
-
 def Bishop(position, color):
-    """Проверка слона"""
-
     moves_list = []
+    friends_list = []  # Define friends_list as needed
+    enemies_list = []  # Define enemies_list as needed
 
-    if color == "white":
-        enemies_list = black_locations
-        friends_list = white_locations
-    if color == "black":
-        enemies_list  = white_locations
-        friends_list = black_locations
-    #Вверх право, вверх влево, вних вправо, вниз влево
-    for i in range(4):
-        path = True
+    # Up-right, up-left, down-right, down-left
+    directions = [(1, -1), (-1, -1), (1, 1), (-1, 1)]
+
+    for direction in directions:
+        x, y = direction
+        line = True
         chain = 1
-        if i == 0:
-            x,y = 1, -1
-        if i == 1:
-            x,y = -1, -1
-        if i == 2:
-            x,y = 1, 1
-        else:
-            x,y = -1, 1
-        while path:
-            if (position[0] + (chain*x), position[1] + (chain*y)) not in friends_list and \
-                0 <= position[0] + (chain*x) <= 7 and 0 <= position[1] + (chain*y) <= 7:
-                moves_list.append(position[0] + (chain*x), position[1] + (chain*y))
-                if (position[0] + (chain*x), position[1] + (chain*y)) in enemies_list:
-                    path = False
-                chain +=1
-            return moves_list
+        while line:
+            new_position = (position[0] + (chain * x), position[1] + (chain * y))
+            if (
+                new_position not in friends_list
+                and 0 <= new_position[0] <= 7
+                and 0 <= new_position[1] <= 7
+            ):
+                moves_list.append(new_position)
+                if new_position in enemies_list:
+                    line = False
+                chain += 1
+            else:
+                line = False
+    return moves_list
 
+   
 
 
 def Queen(position, color):
-    """Проверка ферзя"""
     moves_list = Bishop(position, color)
-    second_list = Rook(position, color)
-    for i in range(len(second_list)):
-        moves_list.append(second_list[i])
-
+    rook_moves = Rook(position, color)
+    moves_list.extend(rook_moves)
     return moves_list
 
 def King(position, color):
@@ -269,12 +261,12 @@ def King(position, color):
     moves_list = []
     if color == "white":
         enemies_list = black_locations
-        friends_list - white_locations
+        friends_list = white_locations  # Fix this line
     if color == "black":
         enemies_list = white_locations
         friends_list = black_locations
 
-    values = [(1,0), (1,1), (1,-1), (-1,0), (-1,1), (-1,-1), (0,1), (0,-1)]
+    values = [(1, 0), (1, 1), (1, -1), (-1, 0), (-1, 1), (-1, -1), (0, 1), (0, -1)]
     for i in range(8):
         value = (position[0] + values[i][0], position[1] + values[i][1])
         if value not in friends_list and 0 <= value[0] <= 7 and 0 <= value[1] <= 7:
@@ -300,9 +292,9 @@ def draw_valid(moves):
         pygame.draw.circle(screen, color, (moves[i][0] * 100 + 50, moves[i][1] * 100 + 50), 7)
 
 
-
 black_options = check(black_pieces, black_locations, 'black')
 white_options = check(white_pieces, white_locations, 'white')
+
 run = True
 while run:
     timer.tick(fps)
