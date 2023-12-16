@@ -91,27 +91,31 @@ def draw_board():
 
     Эта функция использует библиотеку Pygame для отрисовки графики.
     """
+    # Отрисовка клеток шахматной доски
     for i in range(32):
         column = i % 4
         row = i // 4
-        """отрисовка ячеек, учитывая четность рядов по вертикале"""
         if row % 2 == 0:
             pygame.draw.rect(screen, 'beige', [600 - (column * 200), row * 100, 100, 100])
         else:
             pygame.draw.rect(screen, 'beige', [700 - (column * 200), row * 100, 100, 100])
-        """отрисовка поля для статуса и съеденных фигур, а также поля статуса"""
+
+        # Отрисовка поля для статуса и съеденных фигур
         pygame.draw.rect(screen, 'beige', [0, 800, WIDTH, 100])
         pygame.draw.rect(screen, 'grey', [0, 800, WIDTH, 100], 5)
         pygame.draw.rect(screen, 'grey', [800, 0, 200, HEIGHT], 5)
-        """размещение текста в поле статуса игры"""
+
+        # Размещение текста в поле статуса игры
         status_text = ['белые, выберите фигуру для хода', 'ход белых!',
                        'черные, выберите фигуру для хода', 'ход черных!']
         screen.blit(big_font.render(status_text[turn_step], True, 'black'), (20, 835))
 
+        # Отрисовка линий разметки на доске
         for i in range(9):
             pygame.draw.line(screen, 'black', (0, 100 * i), (800, 100 * i), 2)
             pygame.draw.line(screen, 'black', (100 * i, 0), (100 * i, 800), 2)
-        """размещение кнопки 'сдаться'"""
+
+        # Размещение кнопки 'сдаться'
         screen.blit(medium_font.render('сдаться', True, 'black'), (680, 838))
         pygame.draw.rect(screen, 'black', [670, 825, 122, 50], 2)
 
@@ -210,179 +214,204 @@ def check(pieces, locations, turn):
 
 def Pawn(position, color):
     """
-    Проверяет возможные ходы для пешки.
+        Проверяет возможные ходы для пешки.
 
-    :param position: Кортеж, представляющий текущее положение пешки на доске.
-    :type position: tuple
+        :param position: Кортеж, представляющий текущее положение пешки на доске.
+        :type position: tuple
 
-    :param color: Строка, указывающая цвет пешки ('black' или 'white').
-    :type color: str
+        :param color: Строка, указывающая цвет пешки ('black' или 'white').
+        :type color: str
 
-    :returns: Список кортежей с возможными ходами для пешки с учетом цвета.
-    :rtype: list[tuple]
-    """
-    moves_list = []
-    if color == 'black':
+        :param black_locations: Список кортежей с позициями фигур черного цвета на доске.
+        :type black_locations: list[tuple]
+
+        :param white_locations: Список кортежей с позициями фигур белого цвета на доске.
+        :type white_locations: list[tuple]
+
+        :returns: Список кортежей с возможными ходами для пешки с учетом цвета.
+        :rtype: list[tuple]
+        """
+    moves_list = []  # Создаем пустой список для хранения возможных ходов пешки.
+
+    if color == 'black':  # Проверяем цвет пешки. Если она черная:
+        # Проверяем возможность движения на одну клетку вперед, если клетка пуста и находится в пределах доски.
         if (position[0], position[1] + 1) not in white_locations and \
                 (position[0], position[1] + 1) not in black_locations and position[1] < 7:
             moves_list.append((position[0], position[1] + 1))
-        if (position[0], position[1] + 2) not in white_locations and \
+
+        # Проверяем возможность движения на две клетки вперед с начальной позиции,
+        # если обе клетки пусты и пешка на втором ряду.
+        if (position[0], position[1] + 1) not in white_locations and \
+                (position[0], position[1] + 1) not in black_locations and \
+                (position[0], position[1] + 2) not in white_locations and \
                 (position[0], position[1] + 2) not in black_locations and position[1] == 1:
             moves_list.append((position[0], position[1] + 2))
-        if (position[0] + 1, position[1] + 1) in black_locations:
+
+        # Проверяем возможность атаки по диагонали вправо на клетку, где находится фигура противника.
+        if (position[0] + 1, position[1] + 1) in white_locations:
             moves_list.append((position[0] + 1, position[1] + 1))
-        if (position[0] - 1, position[1] + 1) in black_locations:
+
+        # Проверяем возможность атаки по диагонали влево на клетку, где находится фигура противника.
+        if (position[0] - 1, position[1] + 1) in white_locations:
             moves_list.append((position[0] - 1, position[1] + 1))
-    if color == "white":
+
+    elif color == "white":  # Если пешка белая:
+        # Проверяем возможность движения на одну клетку вперед, если клетка пуста и находится в пределах доски.
         if (position[0], position[1] - 1) not in white_locations and \
                 (position[0], position[1] - 1) not in black_locations and position[1] > 0:
             moves_list.append((position[0], position[1] - 1))
-        if (position[0], position[1] - 2) not in white_locations and \
+
+        # Проверяем возможность движения на две клетки вперед с начальной позиции,
+        # если обе клетки пусты и пешка на седьмом ряду.
+        if (position[0], position[1] - 1) not in white_locations and \
+                (position[0], position[1] - 1) not in black_locations and \
+                (position[0], position[1] - 2) not in white_locations and \
                 (position[0], position[1] - 2) not in black_locations and position[1] == 6:
             moves_list.append((position[0], position[1] - 2))
-        if (position[0] + 1, position[1] - 1) in white_locations:
+
+        # Проверяем возможность атаки по диагонали вправо на клетку, где находится фигура противника.
+        if (position[0] + 1, position[1] - 1) in black_locations:
             moves_list.append((position[0] + 1, position[1] - 1))
-        if (position[0] - 1, position[1] - 1) in white_locations:
+
+        # Проверяем возможность атаки по диагонали влево на клетку, где находится фигура противника.
+        if (position[0] - 1, position[1] - 1) in black_locations:
             moves_list.append((position[0] - 1, position[1] - 1))
-    return moves_list
+
+    return moves_list  # Возвращаем список возможных ходов.
 
 
 def Rook(position, color):
     """
-    Генерирует возможные ходы для ладьи на шахматной доске.
+        Проверяет возможные ходы для ладьи.
 
-    :param position: Кортеж координат текущего положения ладьи на доске (x, y).
-    :type position: tuple[int, int]
+        :param position: Кортеж, представляющий текущее положение ладьи на доске.
+        :type position: tuple
 
-    :param color: Цвет ладьи ('black' - черная, 'white' - белая).
-    :type color: str
+        :param color: Строка, указывающая цвет ладьи ('black' или 'white').
+        :type color: str
 
-    :returns: Список координатных кортежей с возможными ходами для ладьи в заданной позиции.
-    :rtype: list[tuple[int, int]]
-    """
-    moves_list = []
-    friends_list = []  # Список дружественных фигур (не рассматриваем их влияние)
-    enemies_list = []  # Список вражеских фигур (противников)
+        :returns: Список кортежей с возможными ходами для ладьи с учетом цвета.
+        :rtype: list[tuple]
+        """
+    moves_list = []  # Создаем пустой список для хранения возможных ходов ладьи.
+    directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]  # Список направлений: вверх, вниз, вправо, влево.
 
-    # Проверка ходов по направлениям (вниз, вверх, влево, вправо)
-    for i in range(4):
-        path = True
-        chain = 1
-        if i == 0:
-            x, y = 0, 1  # Движение вниз
-        elif i == 1:
-            x, y = 0, -1  # Движение вверх
-        elif i == 2:
-            x, y = 1, 0  # Движение вправо
-        else:
-            x, y = -1, 0  # Движение влево
+    # Определяем списки вражеских и своих фигур в зависимости от цвета ладьи.
+    if color == 'white':
+        enemies_list = black_locations
+        friends_list = white_locations
+    else:
+        friends_list = black_locations
+        enemies_list = white_locations
 
-        while path:
-            if (
-                    (position[0] + (chain * x), position[1] + (chain * y))
-                    not in friends_list
-                    and 0 <= position[0] + (chain * x) <= 7
-                    and 0 <= position[1] + (chain * y) <= 7
-            ):
-                moves_list.append(
-                    (position[0] + (chain * x), position[1] + (chain * y))
-                )
-                if (
-                        (position[0] + (chain * x), position[1] + (chain * y)) in enemies_list
-                ):
-                    path = False  # Прекращаем движение при обнаружении вражеской фигуры
-                chain += 1
+    # Перебираем все направления движения.
+    for dx, dy in directions:
+        x, y = position[0] + dx, position[1] + dy
+
+        # Проверяем, находится ли следующая клетка в пределах доски.
+        while 0 <= x <= 7 and 0 <= y <= 7:
+            new_position = (x, y)
+
+            # Если клетка не занята своей фигурой, добавляем ее в возможные ходы.
+            if new_position not in friends_list:
+                moves_list.append(new_position)
+
+                # Если клетка занята вражеской фигурой, прерываем движение в этом направлении.
+                if new_position in enemies_list:
+                    break
+
+                # Переходим к следующей клетке в данном направлении.
+                x, y = x + dx, y + dy
             else:
-                path = False  # Прекращаем движение при достижении границы доски
-    return moves_list
+                break  # Если клетка занята своей фигурой, прекращаем движение в этом направлении.
 
+    return moves_list  # Возвращаем список возможных ходов ладьи.
 
 
 def kNight(position, color):
     """
-    Генерирует возможные ходы для коня на шахматной доске.
+       Проверяет возможные ходы для коня.
 
-    :param position: Кортеж координат текущего положения коня на доске (x, y).
-    :type position: tuple[int, int]
+       :param position: Кортеж, представляющий текущее положение коня на доске.
+       :type position: tuple
 
-    :param color: Цвет коня ('black' - черный, 'white' - белый).
-    :type color: str
+       :param color: Строка, указывающая цвет коня ('black' или 'white').
+       :type color: str
 
-    :returns: Список координатных кортежей с возможными ходами для коня в заданной позиции.
-    :rtype: list[tuple[int, int]]
-    """
-    moves_list = []
+       :returns: Список кортежей с возможными ходами для коня с учетом цвета.
+       :rtype: list[tuple]
+       """
+    moves_list = []  # Создаем пустой список для хранения возможных ходов коня.
+
+    # Определяем список вражеских и своих фигур в зависимости от цвета коня.
     if color == 'white':
-        enemies_list = white_locations  # Вражеские фигуры для белых
-        friends_list = black_locations  # Дружественные фигуры для белых
+        enemies_list = black_locations
+        friends_list = white_locations
     else:
-        friends_list = white_locations  # Дружественные фигуры для черных
-        enemies_list = black_locations  # Вражеские фигуры для черных
+        friends_list = black_locations
+        enemies_list = white_locations
 
-    # Возможные варианты ходов коня
-    targets = [(-1, 2), (-1, -2), (-2, 1), (-2, -1), (1, 2), (1, -2), (2, 1), (2, -1)]
+    # Возможные направления движения коня: два шага в одном направлении и один в другом.
+    targets = [(1, 2), (1, -2), (2, 1), (2, -1), (-1, 2), (-1, -2), (-2, 1), (-2, -1)]
 
+    # Проверяем каждое из восьми направлений для хода коня.
     for i in range(8):
         target = (position[0] + targets[i][0], position[1] + targets[i][1])
-        # Проверка валидности хода коня и отсутствия дружественных фигур на пути
+
+        # Проверяем, что конь может сходить на клетку, которая не занята своей фигурой и находится на доске.
         if target not in friends_list and 0 <= target[0] <= 7 and 0 <= target[1] <= 7:
-            moves_list.append(target)  # Добавляем в список возможный ход
-    return moves_list
+            moves_list.append(target)  # Добавляем клетку в список возможных ходов.
+
+    return moves_list  # Возвращаем список возможных ходов коня.
 
 
 def Bishop(position, color):
     """
-    Генерирует возможные ходы для слона на шахматной доске.
+        Проверяет возможные ходы для слона.
 
-    :param position: Кортеж координат текущего положения слона на доске (x, y).
-    :type position: tuple[int, int]
+        :param position: Кортеж, представляющий текущее положение слона на доске.
+        :type position: tuple
 
-    :param color: Цвет слона ('black' - черный, 'white' - белый).
-    :type color: str
+        :param color: Строка, указывающая цвет слона ('black' или 'white').
+        :type color: str
 
-    :returns: Список координатных кортежей с возможными ходами для слона в заданной позиции.
-    :rtype: list[tuple[int, int]]
+        :returns: Список кортежей с возможными ходами для слона с учетом цвета.
+        :rtype: list[tuple]
+        """
+    moves_list = []  # Создаем пустой список для хранения возможных ходов слона.
+    directions = [(1, -1), (-1, -1), (1, 1), (-1, 1)]  # Направления движения слона по диагоналям.
 
-    Слон может двигаться по диагоналям на любое количество шагов вверх и вниз,
-    влево и вправо до тех пор, пока не встретит другую фигуру или край доски.
+    # Определяем списки вражеских и своих фигур в зависимости от цвета слона.
+    if color == 'white':
+        enemies_list = black_locations
+        friends_list = white_locations
+    else:
+        friends_list = black_locations
+        enemies_list = white_locations
 
-    Для каждого из четырех направлений (вверх-вправо, вверх-влево, вниз-вправо, вниз-влево)
-    проверяются все возможные ходы до достижения края доски или встречи вражеской фигуры.
-    """
-
-    moves_list = []  # Список для хранения возможных ходов слона
-    friends_list = []  # Список дружественных фигур (не рассматриваем их влияние)
-    enemies_list = []  # Список вражеских фигур (противников)
-
-    # Направления движения для слона (вверх-вправо, вверх-влево, вниз-вправо, вниз-влево)
-    directions = [(1, -1), (-1, -1), (1, 1), (-1, 1)]
-
-    # Проверяем каждое из четырех направлений для слона
+    # Перебираем каждое из четырех направлений движения слона.
     for direction in directions:
         x, y = direction
-        line = True
         chain = 1
 
-        # Продвигаемся по диагонали пока возможно
-        while line:
-            new_position = (position[0] + (chain * x), position[1] + (chain * y))
+        # Проверяем все клетки по данному направлению.
+        while True:
+            new_x = position[0] + chain * x
+            new_y = position[1] + chain * y
 
-            # Проверяем валидность хода и границы доски
-            if (
-                    new_position not in friends_list
-                    and 0 <= new_position[0] <= 7
-                    and 0 <= new_position[1] <= 7
-            ):
-                moves_list.append(new_position)  # Добавляем возможный ход
+            # Проверяем, находится ли клетка в пределах доски и не занята ли она своей фигурой.
+            if (new_x, new_y) not in friends_list and 0 <= new_x <= 7 and 0 <= new_y <= 7:
+                moves_list.append((new_x, new_y))  # Добавляем клетку в список возможных ходов.
 
-                # Если обнаружена вражеская фигура, прекращаем движение в этом направлении
-                if new_position in enemies_list:
-                    line = False
+                if (new_x, new_y) in enemies_list:
+                    break  # Прекращаем движение в данном направлении, если встречена вражеская фигура.
 
-                chain += 1  # Переходим к следующей клетке на диагонали
+                chain += 1  # Переходим к следующей клетке по данному направлению.
             else:
-                line = False  # Прекращаем движение при достижении границы доски
-    return moves_list  # Возвращаем список возможных ходов для слона
+                break  # Прекращаем движение, если встречена своя фигура или выходим за пределы доски.
+
+    return moves_list  # Возвращаем список возможных ходов слона.
+
 
 def Queen(position, color):
     """
@@ -405,7 +434,6 @@ def Queen(position, color):
     rook_moves = Rook(position, color)  # Получаем возможные ходы для ладьи
     moves_list.extend(rook_moves)  # Объединяем список ходов слона и ладьи
     return moves_list  # Возвращаем список возможных ходов для ферзя
-
 
 
 def King(position, color):
@@ -491,6 +519,22 @@ def draw_valid(moves):
         pygame.draw.rect(screen, color, (moves[i][0] * 100, moves[i][1] * 100, 105, 105), 5)
 
 
+# заимствованный код
+def draw_game_over():
+    """
+        Отображает сообщение о завершении игры на экране.
+
+        :returns: None
+        :rtype: None
+        """
+
+    pygame.draw.rect(screen, 'white', [200, 200, 400, 100])
+    screen.blit(font.render(f'{winner} выиграли', True, 'black'), (210, 210))
+    screen.blit(font.render(f'Нажмите ENTER, чтобы перезагрузить', True, 'black'), (210, 240))
+
+
+# конец
+
 black_options = check(black_pieces, black_locations, 'black')
 white_options = check(white_pieces, white_locations, 'white')
 # заимствованный код
@@ -501,27 +545,33 @@ while run:
     screen.fill('brown')
     draw_board()
     draw_pieces()
+    # Проверка наличия выбранной фигуры и отрисовка доступных ходов для неё, если есть
     if selection != 100:
         valid_moves = possible_moves()
         draw_valid(valid_moves)
     # заимствованный код
     for event in pygame.event.get():
-        """все действия игры"""
+        # все действия игры
         if event.type == pygame.QUIT:
-            """если нажал крестик, то игра должна свернутся"""
+            # если нажал крестик, то игра должна свернутся
             run = False
         # конец
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and not game_over:
-            x_coord = event.pos[0] // 100
-            y_coord = event.pos[1] // 100
-            click_coords = (x_coord, y_coord)
-            if turn_step <= 1:
-                if click_coords == (8, 8) or click_coords == (9, 8):
-                    winner = 'black'
+            x_coord = event.pos[0] // 100  # Определение координаты x клика в координатах доски
+            y_coord = event.pos[1] // 100  # Определение координаты y клика в координатах доски
+            click_coords = (x_coord, y_coord)  # Координаты клетки, на которую кликнули
+            # Получение координат клика мыши
+            x, y = pygame.mouse.get_pos()
+
+            # Проверка, был ли клик внутри определенной области
+            if turn_step <= 1:  # Ход белых фигур
+                if 678 <= x <= 800 and 825 <= y <= 875:
+                    winner = 'негры'  # Если выбрана кнопка "сдаться", белые проигрывают
                 if click_coords in white_locations:
-                    selection = white_locations.index(click_coords)
+                    selection = white_locations.index(click_coords)  # Выбор белой фигуры для хода
                     if turn_step == 0:
-                        turn_step = 1
+                        turn_step = 1  # Переход к следующему этапу хода белых
+
                 if click_coords in valid_moves and selection != 100:
                     white_locations[selection] = click_coords
                     if click_coords in black_locations:
@@ -536,13 +586,15 @@ while run:
                     turn_step = 2
                     selection = 100
                     valid_moves = []
-            if turn_step > 1:
-                if click_coords == (8, 8) or click_coords == (9, 8):
-                    winner = 'white'
+
+            if turn_step > 1:  # Ход черных фигур
+                if 678 <= x <= 800 and 825 <= y <= 875:
+                    winner = 'white'  # Если выбрана кнопка "сдаться", черные проигрывают
                 if click_coords in black_locations:
-                    selection = black_locations.index(click_coords)
+                    selection = black_locations.index(click_coords)  # Выбор черной фигуры для хода
                     if turn_step == 2:
-                        turn_step = 3
+                        turn_step = 3  # Переход к следующему этапу хода черных
+
                 if click_coords in valid_moves and selection != 100:
                     black_locations[selection] = click_coords
                     if click_coords in white_locations:
@@ -557,6 +609,9 @@ while run:
                     turn_step = 0
                     selection = 100
                     valid_moves = []
+        if winner != '':
+            game_over = True
+            draw_game_over()
         if event.type == pygame.KEYDOWN and game_over:
             if event.key == pygame.K_RETURN:
                 game_over = False
